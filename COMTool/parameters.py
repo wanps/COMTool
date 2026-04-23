@@ -42,6 +42,10 @@ configFilePath=configFileName
 if sys.platform.startswith('linux') or sys.platform.startswith('darwin') or sys.platform.startswith('freebsd'):
     configFileDir = os.path.join(os.getenv("HOME"), ".config/comtool")
     configFilePath = get_config_path(configFileName)
+elif sys.platform.startswith("win"):
+    appdata = os.getenv("APPDATA") or os.path.expanduser("~\\AppData\\Roaming")
+    configFileDir = os.path.join(appdata, appName)
+    configFilePath = get_config_path(configFileName)
 else:
     configFileDir = os.path.abspath(os.getcwd())
     configFilePath  = os.path.join(configFileDir, configFileName)
