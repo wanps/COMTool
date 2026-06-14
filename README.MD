@@ -1,3 +1,12 @@
+> **⚠️ This is a fork of [Neutree/COMTool](https://github.com/Neutree/COMTool) with Python 3.12+ compatibility fix.**
+>
+> The upstream version crashes on Python 3.12+ due to the removed `distutils` module. This fork fixes it by replacing `distutils`-dependent code with `babel`'s pure Python API.
+>
+> **Install this fork:**
+> ```bash
+> uv tool install git+https://github.com/wanps/COMTool.git
+> ```
+
 COMTool
 ========
 
