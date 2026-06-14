@@ -3,6 +3,14 @@ import gettext
 import babel
 from collections import OrderedDict
 
+try:
+    from distutils.errors import DistutilsOptionError
+except ImportError:
+    try:
+        from setuptools._distutils.errors import DistutilsOptionError
+    except ImportError:
+        DistutilsOptionError = Exception
+
 locales=["en", "zh_CN", "zh_TW", "ja"]
 
 
@@ -36,7 +44,6 @@ def get_languages():
     return languages
 
 def extract(src_path, config_file_path, out_path):
-    from distutils.errors import DistutilsOptionError
     from babel.messages.frontend import extract_messages
     cmdinst = extract_messages()
     cmdinst.initialize_options()
@@ -50,7 +57,6 @@ def extract(src_path, config_file_path, out_path):
         raise err
 
 def init(template_path, out_dir, locale, domain="messages"):
-    from distutils.errors import DistutilsOptionError
     from babel.messages.frontend import init_catalog
     cmdinst = init_catalog()
     cmdinst.initialize_options()
@@ -65,7 +71,6 @@ def init(template_path, out_dir, locale, domain="messages"):
         raise err
 
 def update(template_path, out_dir, locale, domain="messages"):
-    from distutils.errors import DistutilsOptionError
     from babel.messages.frontend import update_catalog
     cmdinst = update_catalog()
     cmdinst.initialize_options()
@@ -80,18 +85,20 @@ def update(template_path, out_dir, locale, domain="messages"):
         raise err
 
 def compile(translate_dir, locale, domain="messages"):
-    from distutils.errors import DistutilsOptionError
-    from babel.messages.frontend import compile_catalog
-    cmdinst = compile_catalog()
-    cmdinst.initialize_options()
-    cmdinst.directory = translate_dir
-    cmdinst.locale = locale
-    cmdinst.domain = domain
-    try:
-        cmdinst.ensure_finalized()
-        cmdinst.run()
-    except DistutilsOptionError as err:
-        raise err
+    po_path = os.path.join(translate_dir, locale, "LC_MESSAGES", domain + ".po")
+    mo_path = os.path.join(translate_dir, locale, "LC_MESSAGES", domain + ".mo")
+    if not os.path.exists(po_path):
+        print("po file not found: {}".format(po_path))
+        return
+    from babel.messages.pofile import read_po
+    from babel.messages.mofile import write_mo
+    with open(po_path, 'r') as f:
+        catalog = read_po(f, locale=locale)
+    mo_dir = os.path.dirname(mo_path)
+    if not os.path.exists(mo_dir):
+        os.makedirs(mo_dir)
+    with open(mo_path, 'wb') as f:
+        write_mo(f, catalog)
 
 
 
